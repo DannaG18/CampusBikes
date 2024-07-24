@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS phone_type(
 
 CREATE TABLE IF NOT EXISTS document_type(
     id_document_type INT(2) AUTO_INCREMENT,
-    name_document VARCHAR(10),
+    name_document VARCHAR(30),
     CONSTRAINT pk_id_document_type PRIMARY KEY (id_document_type)
 );
 
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS sale(
     id_sale INT(11) AUTO_INCREMENT,
     date_sale DATE,
     client_id VARCHAR(20),
-    total_amount DECIMAL(10,2),
+    total_amount DECIMAL(10,2) NOT NULL CHECK (total_amount >= 0),
     CONSTRAINT pk_id_sale PRIMARY KEY (id_sale),
     CONSTRAINT fk_sale_client_id FOREIGN KEY (client_id) REFERENCES client(id_client)
 );
@@ -81,8 +81,8 @@ CREATE TABLE IF NOT EXISTS bike(
     id_bike VARCHAR(10),
     model_id VARCHAR(20),
     brand_id VARCHAR(20),
-    price DECIMAL(10,2),
-    stock INT(10),
+    price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+    stock INT(10) NOT NULL CHECK (stock >= 0),
     CONSTRAINT pk_id_bike PRIMARY KEY (id_bike),
     CONSTRAINT fk_bike_model_id FOREIGN KEY (model_id) REFERENCES model(id_model),
     CONSTRAINT fk_bike_brand_id FOREIGN KEY (brand_id) REFERENCES brand(id_brand)
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS sale_detail(
     sale_id INT(11),
     bike_id VARCHAR(10),
     bikes_number INT(10),
-    unit_price DECIMAL(10,2),
+    unit_price DECIMAL(10,2) NOT NULL CHECK (unit_price >= 0),
     CONSTRAINT pk_id_sale_detail PRIMARY KEY (id_sale_detail),
     CONSTRAINT fk_sale_detail_sale_id FOREIGN KEY (sale_id) REFERENCES sale(id_sale),
     CONSTRAINT fk_sale_bike_id FOREIGN KEY (bike_id) REFERENCES bike(id_bike)
@@ -118,8 +118,8 @@ CREATE TABLE IF NOT EXISTS replacement(
     id_replacement VARCHAR(5),
     name_replacement VARCHAR(30),
     description VARCHAR(100),
-    price DECIMAL(10,2),
-    stock INT(10),
+    price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+    stock INT(10) NOT NULL CHECK (stock >= 0),
     supplier_id VARCHAR(20),
     CONSTRAINT pk_id_replacement PRIMARY KEY (id_replacement),
     CONSTRAINT fk_replacement_supplie_id FOREIGN KEY (supplier_id) REFERENCES supplier(id_supplier)
