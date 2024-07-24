@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS purchase(
     id_purchase INT(11) AUTO_INCREMENT,
     date_purchase DATE,
     supplier_id VARCHAR(20),
-    total_amount DECIMAL(10,2),
+    total_amount DECIMAL(10,2) NOT NULL CHECK (total_amount >= 0),
     CONSTRAINT pk_id_purchase PRIMARY KEY (id_purchase),
     CONSTRAINT fk_purchase_supplier_id FOREIGN KEY (supplier_id) REFERENCES supplier(id_supplier)
 );
@@ -138,8 +138,8 @@ CREATE TABLE IF NOT EXISTS purchase_detail(
     id_purchase_detail VARCHAR(10),
     purchase_id INT(11),
     replacement_id VARCHAR(5),
-    purchase_number INT(10),
-    unit_price DECIMAL(10,2),
+    purchase_number INT(10) NOT NULL CHECK(purchase_number >= 0),
+    unit_price DECIMAL(10,2) NOT NULL CHECK (unit_price >= 0),
     CONSTRAINT pk_id_purchase_detail PRIMARY KEY (id_purchase_detail),
     CONSTRAINT fk_purchase_detail_purchase_id FOREIGN KEY (purchase_id) REFERENCES purchase(id_purchase),
     CONSTRAINT fk_purchase_replacement_id FOREIGN KEY (replacement_id) REFERENCES replacement(id_replacement)
