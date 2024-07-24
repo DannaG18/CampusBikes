@@ -1,6 +1,6 @@
 # Campusbike
 
-![modeloERD](/home/jhon/Documents/CampusLands/Mysql/CampusBikes/modeloERD.png)
+![modeloERD](https://raw.githubusercontent.com/DannaG18/CampusBikes/main/modeloERD.png)
 
 ## Casos de Uso para la Base de Datos
 
