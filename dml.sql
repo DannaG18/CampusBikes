@@ -163,3 +163,5 @@ SET stock = 20
 WHERE id_replacement = 'R001';
 
 --USE CASE 6
+--Show 
+SELECT sale

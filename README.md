@@ -23,6 +23,23 @@ Administrador de Inventario
 7. El administrador selecciona una bicicleta para eliminar. 
 8. El sistema elimina la bicicleta seleccionada del inventario. 
 
+```sql
+-- USE CASE 1
+--Add new bikes
+INSERT INTO bike (id_bike, model_id, brand_id, price, stock) VALUES
+('B001', 'M001', 'B001', 500.00, 10),
+('B002', 'M002', 'B002', 750.00, 5);
+
+--Update info bike
+UPDATE bike
+SET price = 600.00, stock = 8
+WHERE id_bike = 'B001';
+
+--Delete info bike
+DELETE FROM bike
+WHERE id_bike = 'B001';
+```
+
 **Caso de Uso 2: Registro de Ventas** 
 
 **Descripción:** Este caso de uso describe el proceso de registro de una venta de bicicletas, incluyendo la creación de una nueva venta, la selección de las bicicletas vendidas y el cálculo del total de la venta. 
@@ -39,6 +56,22 @@ Vendedor
 4. El vendedor selecciona las bicicletas que el cliente desea comprar y especifica la cantidad. 5. El sistema calcula el total de la venta. 
 5. El vendedor confirma la venta. 
 6. El sistema guarda la venta y actualiza el inventario de bicicletas. 
+
+```sql
+--USE CASE 2
+--Add new purchase
+INSERT INTO purchase (date_purchase, supplier_id, total_amount) VALUES
+('2024-07-22', 'S001', 5000.00),
+('2024-07-23', 'S002', 7500.00);
+
+--Select purchases bike
+SELECT id_purchase, date_purchase, supplier_id, total_amount
+FROM purchase;
+
+--Total purchases
+SELECT SUM(total_amount) AS total_sales
+FROM purchases;
+```
 
 **Caso de Uso 3: Gestión de Proveedores y Repuestos** 
 
@@ -68,6 +101,32 @@ Administrador de Proveedores
 16. El administrador selecciona un repuesto para eliminar. 
 17. El sistema elimina el repuesto seleccionado. 
 
+```sql
+--USE CASE 3
+--Add suppliers and replacements
+INSERT INTO supplier (id_supplier, document_type, name_supplier, contact_id, phone_id, email, city_id) VALUES
+('S001', 1, 'Supplier 1', 1, 1, 'supplier1@example.com', 'NYC'),
+('S002', 2, 'Supplier 2', 2, 2, 'supplier2@example.com', 'TOR');
+INSERT INTO replacement (id_replacement, name_replacement, description, price, stock, supplier_id) VALUES
+('R001', 'Replacement 1', 'Description 1', 50.00, 100, 'S001'),
+('R002', 'Replacement 2', 'Description 2', 75.00, 200, 'S002');
+
+--Update information 
+UPDATE supplier
+SET document_type = 2, name_supplier = 'Supplier 1.1'
+WHERE id_supplier = 'S001';
+
+UPDATE replacement 
+SET name_replacement = 'Replacement 1.1', 'Description 1.1'
+WHERE id_replacement = 'R001.1';
+
+--Delete information
+DELETE FROM supplier
+WHERE id_supplier = 'S001';
+DELETE FROM replacement
+WHERE id_replacement = 'Replacement 1';
+```
+
 **Caso de Uso 4: Consulta de Historial de Ventas por Cliente** 
 
 **Descripción:** Este caso de uso describe cómo el sistema permite a un usuario consultar el historial de ventas de un cliente específico, mostrando todas las compras realizadas por el cliente y los detalles de cada venta. 
@@ -86,6 +145,16 @@ Administrador
 4. El sistema muestra todas las ventas realizadas por el cliente seleccionado. 5. El usuario selecciona una venta específica para ver los detalles. 
 5. El sistema muestra los detalles de la venta seleccionada (bicicletas compradas, cantidad, precio). 
 
+```sql
+--USE CASE 4
+--Show purchases of a specific client
+SELECT sd.id_sale_detail, sd.sale_id, sd.bike_id, sd.bikes_number, sd.unit_price, s.date_sale, s.client_id, s.total_amount
+FROM sale_detail AS sd
+INNER JOIN sale AS s ON s.id_sale = sd.sale_id
+INNER JOIN client AS c ON c.id_client = s.client_id
+WHERE id_client = 'C001';
+```
+
 **Caso de Uso 5: Gestión de Compras de Repuestos** 
 
 **Descripción:** Este caso de uso describe cómo el sistema gestiona las compras de repuestos a proveedores, permitiendo registrar una nueva compra, especificar los repuestos comprados y actualizar el stock de repuestos. 
@@ -101,7 +170,29 @@ Administrador de Compras
 3. El administrador ingresa los detalles de la compra (fecha, total). 
 4. El sistema guarda la compra y genera un identificador único.
 5. El administrador selecciona los repuestos comprados y especifica la cantidad y el precio unitario. 
-6. El sistema guarda los detalles de la compra y actualiza el stock de los repuestos comprados. **Casos de Uso con Subconsultas** 
+6. El sistema guarda los detalles de la compra y actualiza el stock de los repuestos comprados. **Casos de Uso con Subconsultas**
+
+```sql
+--USE CASE 5
+--Purchase register
+INSERT INTO purchase (date_purchase, supplier_id, total_amount) VALUES
+('2024-07-22', 'S001', 5000.00),
+('2024-07-23', 'S002', 7500.00);
+
+--Replacement especifications
+SELECT pd.id_purchase_detail, pd.purchase_id, p.supplier_id, su.name_supplier, pd.replacement_id, r.name_replacement, pd.purchase_number, pd.unit_price
+FROM purchase_detail AS pd
+INNER JOIN purchase AS p ON p.id_purchase = pd.purchase_id
+INNER JOIN replacement AS r ON r.id_replacement = pd.replacement_id
+INNER JOIN supplier AS su ON su.id_supplier = p.supplier_id;
+
+--Update replacement stock
+UPDATE replacement
+SET stock = 20
+WHERE id_replacement = 'R001';
+```
+
+ 
 
 **Caso de Uso 6: Consulta de Bicicletas Más Vendidas por Marca** 
 
