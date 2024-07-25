@@ -210,6 +210,39 @@ Administrador
 2. El usuario selecciona la opción para consultar las bicicletas más vendidas por marca. 
 3. El sistema muestra una lista de marcas y el modelo de bicicleta más vendido para cada marca. 
 
+```SQL
+--USE CASE 6
+--Show 
+SELECT sales_by_model.brand AS brand, sales_by_model.model AS model, sales_by_model.id_brand, sales_by_model.id_model
+FROM (
+    SELECT br.name_brand AS brand, m.name_model AS model, SUM(sd.bikes_number) AS sale_total, m.id_model, br.id_brand
+    FROM brand br
+    JOIN bike b ON b.brand_id = br.id_brand
+    JOIN model m ON b.model_id = m.id_model
+    JOIN sale_detail sd ON sd.bike_id = b.id_bike
+    GROUP BY br.name_brand, m.name_model, m.id_model, br.id_brand
+) AS sales_by_model
+WHERE sale_total = (
+    SELECT MAX(sale_total)
+    FROM(
+        SELECT br1.name_brand AS brand, m1.name_model AS model, SUM(sd1.bikes_number) AS total_purchases, m1.id_model, br1.id_brand
+        FROM brand br1
+        JOIN bike b1 ON b1.brand_id = br1.id_brand
+        JOIN model m1 ON b1.model_id = m1.id_model
+        JOIN sale_detail sd1 ON sd1.bike_id = b1.id_bike
+        GROUP BY br1.name_brand, m1.name_model, m1.id_model, br1.id_brand
+    ) AS sum
+    WHERE sum.brand = sales_by_model.brand
+);
+
++---------+---------+----------+----------+
+| brand   | model   | id_brand | id_model |
++---------+---------+----------+----------+
+| Brand 1 | Model 1 | B001     | M001     |
+| Brand 2 | Model 2 | B002     | M002     |
++---------+---------+----------+----------+
+```
+
 **Caso de Uso 7: Clientes con Mayor Gasto en un Año Específico** 
 
 **Descripción:** Este caso de uso describe cómo el sistema permite consultar los clientes que han gastado más en un año específico. 

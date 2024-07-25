@@ -164,4 +164,27 @@ WHERE id_replacement = 'R001';
 
 --USE CASE 6
 --Show 
-SELECT sale
+SELECT sales_by_model.brand AS brand, sales_by_model.model AS model, sales_by_model.id_brand, sales_by_model.id_model
+FROM (
+    SELECT br.name_brand AS brand, m.name_model AS model, SUM(sd.bikes_number) AS sale_total, m.id_model, br.id_brand
+    FROM brand br
+    JOIN bike b ON b.brand_id = br.id_brand
+    JOIN model m ON b.model_id = m.id_model
+    JOIN sale_detail sd ON sd.bike_id = b.id_bike
+    GROUP BY br.name_brand, m.name_model, m.id_model, br.id_brand
+) AS sales_by_model
+WHERE sale_total = (
+    SELECT MAX(sale_total)
+    FROM(
+        SELECT br1.name_brand AS brand, m1.name_model AS model, SUM(sd1.bikes_number) AS total_purchases, m1.id_model, br1.id_brand
+        FROM brand br1
+        JOIN bike b1 ON b1.brand_id = br1.id_brand
+        JOIN model m1 ON b1.model_id = m1.id_model
+        JOIN sale_detail sd1 ON sd1.bike_id = b1.id_bike
+        GROUP BY br1.name_brand, m1.name_model, m1.id_model, br1.id_brand
+    ) AS sum
+    WHERE sum.brand = sales_by_model.brand
+);
+
+
+
