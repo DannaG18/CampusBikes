@@ -211,8 +211,6 @@ Administrador
 3. El sistema muestra una lista de marcas y el modelo de bicicleta más vendido para cada marca. 
 
 ```SQL
---USE CASE 6
---Show 
 SELECT sales_by_model.brand AS brand, sales_by_model.model AS model, sales_by_model.id_brand, sales_by_model.id_model
 FROM (
     SELECT br.name_brand AS brand, m.name_model AS model, SUM(sd.bikes_number) AS sale_total, m.id_model, br.id_brand
@@ -259,8 +257,6 @@ Administrador
 4. El sistema muestra una lista de los clientes que han gastado más en ese año, ordenados por total gastado. 
 
 ```SQL
---USE CASE 7
---Shows the customers who have spent the most in a specific year
 SELECT id_client, name_client, sale_spend
 FROM (
     SELECT cli.id_client AS id_client, CONCAT(cli.first_name,' ', cli.last_name) AS name_client, (
@@ -296,8 +292,6 @@ Administrador de Compras
 3. El sistema muestra una lista de proveedores ordenados por el número de compras recibidas en el último mes. 
 
 ```SQL
---USE CASE 8
---Shows the suppliers who have received the most purchases in the last month
 SELECT id_supplier, name_supplier, total_purchase
 FROM (
     SELECT sp.id_supplier AS id_supplier, sp.name_supplier AS name_supplier, COUNT(p.id_purchase) AS total_purchase
