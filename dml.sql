@@ -186,5 +186,54 @@ WHERE sale_total = (
     WHERE sum.brand = sales_by_model.brand
 );
 
+--USE CASE 7
+--Shows the customers who have spent the most in a specific year
+SELECT id_client, name_client, sale_spend
+FROM (
+    SELECT cli.id_client AS id_client, CONCAT(cli.first_name,' ', cli.last_name) AS name_client, (
+        SELECT SUM(total_amount)
+        FROM sale s
+        WHERE s.client_id = cli.id_client
+        AND YEAR(s.date_sale) = 2024) AS sale_spend
+        FROM client cli
+    ) AS sub
+WHERE sale_spend IS NOT NULL
+ORDER BY sale_spend  DESC;
 
+--USE CASE 8
+--Shows the suppliers who have received the most purchases in the last month
+SELECT id_supplier, name_supplier, total_purchase
+FROM (
+    SELECT sp.id_supplier AS id_supplier, sp.name_supplier AS name_supplier, COUNT(p.id_purchase) AS total_purchase
+    FROM supplier sp
+    JOIN purchase p ON sp.id_supplier = p.supplier_id 
+    WHERE p.date_purchase >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+    GROUP BY id_supplier, name_supplier
+) AS sub
+ORDER BY total_purchase DESC;
+
+--USE CASE 9
+--Replacements
+SELECT r.id_replacement, less_purchased  
+FROM (
+    SELECT replacement_id, SUM(purchase_number) AS less_purchased
+    FROM purchase_detail
+    GROUP BY replacement_id
+) AS sales_summary 
+RIGHT JOIN replacement AS r ON r.id_replacement = sales_summary.replacement_id
+ORDER BY less_purchased ASC; 
+
+--USE CASE 10
+--Show
+SELECT city, top_sales
+FROM (
+    SELECT id_city, name_city AS city,
+        (SELECT COUNT(s.id_sale)
+        FROM sale AS s
+        JOIN client AS cl ON cl.id_client = s.client_id
+        WHERE cl.city_id = c.id_city) AS top_sales
+    FROM city AS c
+) AS city_sales
+ORDER BY top_sales DESC
+LIMIT 2;
 
