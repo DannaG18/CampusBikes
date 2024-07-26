@@ -389,7 +389,24 @@ Administrador
 **Flujo Principal:** 
 
 1. El administrador ingresa al sistema. 
-2. El administrador selecciona la opción para consultar las ventas por ciudad. 3. El sistema muestra una lista de ciudades con el total de ventas realizadas en cada una. **Caso de Uso 12: Consulta de Proveedores por País** 
+2. El administrador selecciona la opción para consultar las ventas por ciudad. 3. El sistema muestra una lista de ciudades con el total de ventas realizadas en cada una. 
+
+```sql
+SELECT c.id_city, SUM(s.total_amount) AS total_amount
+FROM sale AS s
+INNER JOIN client AS cli ON cli.id_client = s.client_id
+INNER JOIN city AS c ON c.id_city = cli.city_id
+GROUP BY c.id_city, total_amount;
+
++---------+--------------+
+| id_city | total_amount |
++---------+--------------+
+| NYC     |      2500.00 |
+| TOR     |      1500.00 |
++---------+--------------+
+```
+
+**Caso de Uso 12: Consulta de Proveedores por País** 
 
 **Descripción:** Este caso de uso describe cómo el sistema permite consultar los proveedores agrupados por país. 
 
@@ -401,6 +418,20 @@ Administrador de Compras
 
 1. El administrador de compras ingresa al sistema. 
 2. El administrador selecciona la opción para consultar los proveedores por país. 3. El sistema muestra una lista de países con los proveedores en cada país. 
+
+```sql
+SELECT sup.id_supplier, cou.id_country, cou.name_country
+FROM supplier AS sup
+INNER JOIN city AS ci ON ci.id_city = sup.city_id
+INNER JOIN country AS cou ON cou.id_country = ci.country_id;
+
++-------------+------------+---------------+
+| id_supplier | id_country | name_country  |
++-------------+------------+---------------+
+| S001        | USA        | United States |
+| S002        | CAN        | Canada        |
++-------------+------------+---------------+
+```
 
 **Caso de Uso 13: Compras de Repuestos por Proveedor** 
 
@@ -415,6 +446,22 @@ Administrador de Compras
 1. El administrador de compras ingresa al sistema. 
 2. El administrador selecciona la opción para consultar las compras de repuestos por proveedor. 
 3. El sistema muestra una lista de proveedores con el total de repuestos comprados a cada uno. 
+
+```sql
+SELECT s.id_supplier, s.name_supplier, SUM(pd.purchase_number) AS replacement_sale
+FROM supplier s
+JOIN purchase p ON s.id_supplier = p.supplier_id
+JOIN purchase_detail pd ON pd.purchase_id = p.id_purchase
+GROUP BY s.id_supplier, s.name_supplier
+ORDER BY replacement_sale DESC;
+
++-------------+---------------+------------------+
+| id_supplier | name_supplier | replacement_sale |
++-------------+---------------+------------------+
+| S002        | Supplier 2    |               75 |
+| S001        | Supplier 1.1  |               50 |
++-------------+---------------+------------------+
+```
 
 **Caso de Uso 14: Clientes con Ventas en un Rango de Fechas** 
 
@@ -431,6 +478,22 @@ Administrador
 1. El usuario ingresa al sistema. 
 2. El usuario selecciona la opción para consultar los clientes con ventas en un rango de fechas. 3. El usuario ingresa las fechas de inicio y fin del rango. 
 3. El sistema muestra una lista de clientes que han realizado compras dentro del rango de fechas especificado. 
+
+```sql
+SELECT cli.id_client AS id_client, CONCAT(cli.first_name, ' ', cli.last_name) AS name_client, s.date_sale AS date
+FROM client cli
+JOIN sale s ON s.client_id = cli.id_client
+WHERE s.date_sale BETWEEN '2024-07-01' AND '2024-08-01';
+
++-----------+---------------+------------+
+| id_client | name_client   | date       |
++-----------+---------------+------------+
+| C001      | Alice Johnson | 2024-07-20 |
+| C002      | Bob Williams  | 2024-07-21 |
+| C001      | Alice Johnson | 2024-07-20 |
+| C002      | Bob Williams  | 2024-07-21 |
++-----------+---------------+------------+
+```
 
 **Casos de Uso para Implementar Procedimientos Almacenados** 
 

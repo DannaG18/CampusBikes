@@ -237,3 +237,39 @@ FROM (
 ORDER BY top_sales DESC
 LIMIT 2;
 
+--JOIN USE CASES
+--USE CASE 11
+--Show
+SELECT c.id_city, SUM(s.total_amount) AS total_amount
+FROM sale AS s
+INNER JOIN client AS cli ON cli.id_client = s.client_id
+INNER JOIN city AS c ON c.id_city = cli.city_id
+GROUP BY c.id_city, total_amount;
+
+--USE CASE 12
+--Show 
+SELECT sup.id_supplier, cou.id_country, cou.name_country
+FROM supplier AS sup
+INNER JOIN city AS ci ON ci.id_city = sup.city_id
+INNER JOIN country AS cou ON cou.id_country = ci.country_id;
+-- GROUP BY sup.id_supplier, cou.name_country;
+
+--USE CASE 13
+--Shows the total number of spare parts purchased from each supplier
+SELECT s.id_supplier, s.name_supplier, SUM(pd.purchase_number) AS replacement_sale
+FROM supplier s
+JOIN purchase p ON s.id_supplier = p.supplier_id
+JOIN purchase_detail pd ON pd.purchase_id = p.id_purchase
+GROUP BY s.id_supplier, s.name_supplier
+ORDER BY replacement_sale DESC;
+
+
+--USE CASE 14
+--Shows customers who have made purchases within a specific date range
+SELECT cli.id_client AS id_client, CONCAT(cli.first_name, ' ', cli.last_name) AS name_client, s.date_sale AS date
+FROM client cli
+JOIN sale s ON s.client_id = cli.id_client
+WHERE s.date_sale BETWEEN '2024-07-01' AND '2024-08-01';
+
+--STORED PROCEDURES
+--USE CASE 1
