@@ -1455,7 +1455,24 @@ Administrador
 4. El procedimiento almacenado devuelve el total de ingresos generados por cada cliente. 
 
 ```SQL
+DROP PROCEDURE IF EXISTS total_revenue_client;
 
+DELIMITER $$
+
+CREATE PROCEDURE total_revenue_client(
+    IN p_id_client VARCHAR(20)
+)
+BEGIN
+    SELECT CONCAT(cli.first_name, ' ', cli.last_name) AS name_client, SUM(s.total_amount) AS total_sales
+    FROM client cli
+    JOIN sale s ON cli.id_client = s.client_id
+    WHERE cli.id_client = p_id_client
+    GROUP BY cli.first_name, cli.last_name;
+END$$
+
+DELIMITER ;
+
+CALL total_revenue_client('C001');
 ```
 
 **Caso de Uso 12: Calcular el Promedio de Compras Mensuales** 
@@ -1474,7 +1491,22 @@ Administrador
 4. El procedimiento almacenado devuelve el promedio de compras realizadas mensualmente. 
 
 ```SQL
+DROP PROCEDURE IF EXISTS average_purchase_month;
 
+DELIMITER $$
+
+CREATE PROCEDURE average_purchase_month(
+    IN p_month INT
+)
+BEGIN 
+    SELECT AVG(s.total_amount) AS average_purchase
+    FROM sale s
+    WHERE MONTH(s.date_sale) = p_month;
+END$$
+
+DELIMITER ;
+
+CALL average_purchase_month(7);
 ```
 
 **Caso de Uso 13: Calcular el Total de Ventas por Día de la Semana** 
