@@ -1,4 +1,10 @@
-# Campusbike
+# **Campusbike**
+
+- [Casos de Uso para la Base de Datos.](#Casos de Uso para la Base de Datos)
+- [Casos de Uso con Subconsultas.](#Casos de Uso con Subconsultas)
+- [Casos de Uso con Joins.](#Casos de Uso con Joins)
+- [Casos de Uso para Implementar Procedimientos Almacenados.](#Casos de Uso para Implementar Procedimientos Almacenados)
+- [Casos de Uso para Funciones de Resumen.](#Casos de Uso para Funciones de Resumen)
 
 ![modeloERD](https://raw.githubusercontent.com/DannaG18/CampusBikes/main/modeloERD.png)
 
@@ -16,12 +22,13 @@ Administrador de Inventario
 
 1. El administrador de inventario ingresa al sistema. 
 2. El administrador selecciona la opción para agregar una nueva bicicleta.
-3. El administrador ingresa los detalles de la bicicleta (modelo, marca, precio, stock). 4. El sistema valida y guarda la información de la nueva bicicleta. 
-4. El administrador selecciona una bicicleta existente para actualizar. 
-5. El administrador actualiza la información (precio, stock). 
-6. El sistema valida y guarda los cambios. 
-7. El administrador selecciona una bicicleta para eliminar. 
-8. El sistema elimina la bicicleta seleccionada del inventario. 
+3. El administrador ingresa los detalles de la bicicleta (modelo, marca, precio, stock). 
+4. El sistema valida y guarda la información de la nueva bicicleta. 
+5. El administrador selecciona una bicicleta existente para actualizar. 
+6. El administrador actualiza la información (precio, stock). 
+7. El sistema valida y guarda los cambios. 
+8. El administrador selecciona una bicicleta para eliminar. 
+9. El sistema elimina la bicicleta seleccionada del inventario. 
 
 ```sql
 -- USE CASE 1
@@ -53,9 +60,10 @@ Vendedor
 1. El vendedor ingresa al sistema. 
 2. El vendedor selecciona la opción para registrar una nueva venta. 
 3. El vendedor selecciona el cliente que realiza la compra. 
-4. El vendedor selecciona las bicicletas que el cliente desea comprar y especifica la cantidad. 5. El sistema calcula el total de la venta. 
-5. El vendedor confirma la venta. 
-6. El sistema guarda la venta y actualiza el inventario de bicicletas. 
+4. El vendedor selecciona las bicicletas que el cliente desea comprar y especifica la cantidad. 
+5. El sistema calcula el total de la venta. 
+6. El vendedor confirma la venta. 
+7. El sistema guarda la venta y actualiza el inventario de bicicletas. 
 
 ```sql
 --USE CASE 2
@@ -142,8 +150,9 @@ Administrador
 1. El usuario ingresa al sistema. 
 2. El usuario selecciona la opción para consultar el historial de ventas. 
 3. El usuario selecciona el cliente del cual desea ver el historial. 
-4. El sistema muestra todas las ventas realizadas por el cliente seleccionado. 5. El usuario selecciona una venta específica para ver los detalles. 
-5. El sistema muestra los detalles de la venta seleccionada (bicicletas compradas, cantidad, precio). 
+4. El sistema muestra todas las ventas realizadas por el cliente seleccionado. 
+5. El usuario selecciona una venta específica para ver los detalles. 
+6. El sistema muestra los detalles de la venta seleccionada (bicicletas compradas, cantidad, precio). 
 
 ```sql
 --USE CASE 4
@@ -166,11 +175,12 @@ Administrador de Compras
 **Flujo Principal:** 
 
 1. El administrador de compras ingresa al sistema. 
-2. El administrador selecciona la opción para registrar una nueva compra. 3. El administrador selecciona el proveedor al que se realizó la compra. 
-3. El administrador ingresa los detalles de la compra (fecha, total). 
-4. El sistema guarda la compra y genera un identificador único.
-5. El administrador selecciona los repuestos comprados y especifica la cantidad y el precio unitario. 
-6. El sistema guarda los detalles de la compra y actualiza el stock de los repuestos comprados. **Casos de Uso con Subconsultas**
+2. El administrador selecciona la opción para registrar una nueva compra. 
+3. El administrador selecciona el proveedor al que se realizó la compra. 
+4. El administrador ingresa los detalles de la compra (fecha, total). 
+5. El sistema guarda la compra y genera un identificador único.
+6. El administrador selecciona los repuestos comprados y especifica la cantidad y el precio unitario. 
+7. El sistema guarda los detalles de la compra y actualiza el stock de los repuestos comprados. 
 
 ```sql
 --USE CASE 5
@@ -192,7 +202,7 @@ SET stock = 20
 WHERE id_replacement = 'R001';
 ```
 
- 
+## Casos de Uso con Subconsultas
 
 **Caso de Uso 6: Consulta de Bicicletas Más Vendidas por Marca** 
 
@@ -353,7 +363,8 @@ Administrador
 **Flujo Principal:** 
 
 1. El administrador ingresa al sistema. 
-2. El administrador selecciona la opción para consultar las ciudades con más ventas realizadas. 3. El sistema muestra una lista de ciudades ordenadas por la cantidad de ventas realizadas. 
+2. El administrador selecciona la opción para consultar las ciudades con más ventas realizadas. 
+3. El sistema muestra una lista de ciudades ordenadas por la cantidad de ventas realizadas. 
 
 ```SQL
 SELECT city, top_sales
@@ -376,7 +387,7 @@ LIMIT 2;
 +----------+-----------+
 ```
 
-**Casos de Uso con Joins** 
+## Casos de Uso con Joins 
 
 **Caso de Uso 11: Consulta de Ventas por Ciudad** 
 
@@ -389,7 +400,8 @@ Administrador
 **Flujo Principal:** 
 
 1. El administrador ingresa al sistema. 
-2. El administrador selecciona la opción para consultar las ventas por ciudad. 3. El sistema muestra una lista de ciudades con el total de ventas realizadas en cada una. 
+2. El administrador selecciona la opción para consultar las ventas por ciudad. 
+3. El sistema muestra una lista de ciudades con el total de ventas realizadas en cada una. 
 
 ```sql
 SELECT c.id_city, SUM(s.total_amount) AS total_amount
@@ -417,7 +429,8 @@ Administrador de Compras
 **Flujo Principal:** 
 
 1. El administrador de compras ingresa al sistema. 
-2. El administrador selecciona la opción para consultar los proveedores por país. 3. El sistema muestra una lista de países con los proveedores en cada país. 
+2. El administrador selecciona la opción para consultar los proveedores por país. 
+3. El sistema muestra una lista de países con los proveedores en cada país. 
 
 ```sql
 SELECT sup.id_supplier, cou.id_country, cou.name_country
@@ -476,8 +489,9 @@ Administrador
 **Flujo Principal:** 
 
 1. El usuario ingresa al sistema. 
-2. El usuario selecciona la opción para consultar los clientes con ventas en un rango de fechas. 3. El usuario ingresa las fechas de inicio y fin del rango. 
-3. El sistema muestra una lista de clientes que han realizado compras dentro del rango de fechas especificado. 
+2. El usuario selecciona la opción para consultar los clientes con ventas en un rango de fechas. 
+3. El usuario ingresa las fechas de inicio y fin del rango. 
+4. El sistema muestra una lista de clientes que han realizado compras dentro del rango de fechas especificado. 
 
 ```sql
 SELECT cli.id_client AS id_client, CONCAT(cli.first_name, ' ', cli.last_name) AS name_client, s.date_sale AS date
@@ -495,7 +509,7 @@ WHERE s.date_sale BETWEEN '2024-07-01' AND '2024-08-01';
 +-----------+---------------+------------+
 ```
 
-**Casos de Uso para Implementar Procedimientos Almacenados** 
+## Casos de Uso para Implementar Procedimientos Almacenados 
 
 **Caso de Uso 1: Actualización de Inventario de Bicicletas** 
 
@@ -524,7 +538,10 @@ Vendedor
 
 1. El vendedor ingresa al sistema. 
 2. El vendedor registra una nueva venta. 
-3. El sistema llama a un procedimiento almacenado para registrar la venta y sus detalles. 4. El procedimiento almacenado inserta la venta y sus detalles en las tablas correspondientes. **Caso de Uso 3: Generación de Reporte de Ventas por Cliente** 
+3. El sistema llama a un procedimiento almacenado para registrar la venta y sus detalles. 
+4. El procedimiento almacenado inserta la venta y sus detalles en las tablas correspondientes. 
+
+**Caso de Uso 3: Generación de Reporte de Ventas por Cliente** 
 
 **Descripción:** Este caso de uso describe cómo el sistema genera un reporte de ventas para un cliente específico, mostrando todas las ventas realizadas por el cliente y los detalles de cada venta. 
 
@@ -535,8 +552,9 @@ Administrador
 **Flujo Principal:** 
 
 1. El administrador ingresa al sistema. 
-2. El administrador selecciona un cliente para generar un reporte de ventas. 3. El sistema llama a un procedimiento almacenado para generar el reporte. 
-3. El procedimiento almacenado obtiene las ventas y los detalles de las ventas realizadas por el cliente. 
+2. El administrador selecciona un cliente para generar un reporte de ventas. 
+3. El sistema llama a un procedimiento almacenado para generar el reporte. 
+4. El procedimiento almacenado obtiene las ventas y los detalles de las ventas realizadas por el cliente. 
 
 **Caso de Uso 4: Registro de Compra de Repuestos** 
 
@@ -565,7 +583,8 @@ Administrador de Inventario
 
 1. El administrador de inventario ingresa al sistema. 
 2. El administrador solicita un reporte de inventario. 
-3. El sistema llama a un procedimiento almacenado para generar el reporte. 4. El procedimiento almacenado obtiene la información del inventario de bicicletas y repuestos. 
+3. El sistema llama a un procedimiento almacenado para generar el reporte. 
+4. El procedimiento almacenado obtiene la información del inventario de bicicletas y repuestos. 
 
 **Caso de Uso 6: Actualización Masiva de Precios** 
 
@@ -578,9 +597,34 @@ Administrador
 **Flujo Principal:** 
 
 1. El administrador ingresa al sistema. 
-2. El administrador selecciona la opción para actualizar los precios de una marca específica. 3. El administrador ingresa la marca y el porcentaje de incremento. 
-3. El sistema llama a un procedimiento almacenado para actualizar los precios. 
-4. El procedimiento almacenado actualiza los precios de todas las bicicletas de la marca especificada. 
+2. El administrador selecciona la opción para actualizar los precios de una marca específica. 
+3. El administrador ingresa la marca y el porcentaje de incremento. 
+4. El sistema llama a un procedimiento almacenado para actualizar los precios. 
+5. El procedimiento almacenado actualiza los precios de todas las bicicletas de la marca especificada. 
+
+```SQL
+DROP PROCEDURE IF EXISTS update_bike_prices();
+
+DELIMITER $$
+
+CREATE PROCEDURE update_bike_prices(
+    IN p_brand_id VARCHAR(20),
+    IN p_percentage_increment DECIMAL(5,2)
+)
+BEGIN
+    IF p_percentage_increment <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The percentage increase must be greater than 0.';
+    ELSE
+        UPDATE bike
+        SET price = price * (1 + (p_percentage_increment / 100))
+        WHERE brand_id = p_brand_id;
+    END IF;
+END$$
+
+DELIMITER ;
+
+CALL update_bike_prices('B001', 10.0);
+```
 
 **Caso de Uso 7: Generación de Reporte de Clientes por Ciudad** 
 
@@ -593,7 +637,27 @@ Administrador
 **Flujo Principal:** 
 
 1. El administrador ingresa al sistema. 
-2. El administrador selecciona la opción para generar un reporte de clientes por ciudad. 3. El sistema llama a un procedimiento almacenado para generar el reporte. 4. El procedimiento almacenado obtiene la información de los clientes agrupados por ciudad.
+2. El administrador selecciona la opción para generar un reporte de clientes por ciudad. 
+3. El sistema llama a un procedimiento almacenado para generar el reporte. 
+4. El procedimiento almacenado obtiene la información de los clientes agrupados por ciudad.
+
+```SQL
+DROP PROCEDURE IF EXISTS clients_by_city;
+
+DELIMITER $$
+
+CREATE PROCEDURE clients_by_city()
+BEGIN
+    SELECT c.name_city AS city, COUNT(cli.id_client) AS total_clients
+    FROM client cli 
+    JOIN city c ON cli.city_id = c.id_city
+    GROUP BY c.name_city;
+END$$
+
+DELIMITER ;
+
+CALL clients_by_city();
+```
 
 **Caso de Uso 8: Verificación de Stock antes de Venta** 
 
@@ -610,6 +674,37 @@ Vendedor
 3. El sistema llama a un procedimiento almacenado para verificar el stock. 
 4. El procedimiento almacenado devuelve un mensaje indicando si hay suficiente stock para realizar la venta. 
 
+```SQL
+DROP PROCEDURE IF EXISTS check_stock;
+
+DELIMITER $$
+
+CREATE PROCEDURE check_stock(
+    IN p_id_bike VARCHAR(10),
+    IN requested INT,
+    OUT stock_status VARCHAR(50)
+)
+BEGIN
+    DECLARE current_stock INT;
+
+    SELECT stock
+    INTO current_stock
+    FROM bike
+    WHERE id_bike = p_id_bike;
+
+    IF current_stock >= requested THEN
+        SET stock_status = 'Sufficient stock available';
+    ELSE 
+        SET stock_status = 'Insufficient stock';
+    END IF;
+END$$
+
+DELIMITER ;
+
+CALL check_stock('B001', 2, @status);
+SELECT @status AS stock_status;
+```
+
 **Caso de Uso 9: Registro de Devoluciones** 
 
 **Descripción:** Este caso de uso describe cómo el sistema registra la devolución de una bicicleta por un cliente. 
@@ -622,7 +717,42 @@ Vendedor
 
 1. El vendedor ingresa al sistema. 
 2. El vendedor registra una devolución de bicicleta. 
-3. El sistema llama a un procedimiento almacenado para registrar la devolución. 4. El procedimiento almacenado inserta la devolución y actualiza el stock de la bicicleta. 
+3. El sistema llama a un procedimiento almacenado para registrar la devolución. 
+4. El procedimiento almacenado inserta la devolución y actualiza el stock de la bicicleta. 
+
+```SQL
+DROP PROCEDURE IF EXISTS return_sale;
+
+DELIMITER $$
+
+CREATE PROCEDURE return_sale(
+    IN p_id_sale INT,
+    IN p_id_bike VARCHAR(10),
+    IN p_refund_amount INT
+)
+BEGIN
+    DECLARE new_stock INT;
+
+    SELECT stock 
+    INTO new_stock 
+    FROM bike
+    WHERE id_bike = p_id_bike;
+
+    SET new_stock = new_stock + p_refund_amount;
+
+    UPDATE bike
+    SET stock = new_stock
+    WHERE id_bike = p_id_bike;
+
+    DELETE FROM sale_detail WHERE sale_id = p_id_sale;
+
+    DELETE FROM sale WHERE id_sale = p_id_sale;
+END$$
+
+DELIMITER ;
+
+CALL return_sale(1, 'B001', 1);
+```
 
 **Caso de Uso 10: Generación de Reporte de Compras por Proveedor** 
 
@@ -635,8 +765,37 @@ Administrador de Compras
 **Flujo Principal:** 
 
 1. El administrador de compras ingresa al sistema. 
-2. El administrador selecciona un proveedor para generar un reporte de compras. 3. El sistema llama a un procedimiento almacenado para generar el reporte. 
-3. El procedimiento almacenado obtiene las compras y los detalles de las compras realizadas al proveedor.
+2. El administrador selecciona un proveedor para generar un reporte de compras. 
+3. El sistema llama a un procedimiento almacenado para generar el reporte. 
+4. El procedimiento almacenado obtiene las compras y los detalles de las compras realizadas al proveedor.
+
+```SQL
+DROP PROCEDURE IF EXISTS purchase_report;
+
+DELIMITER $$
+
+CREATE PROCEDURE purchase_report(
+    IN p_id_supplier VARCHAR(20)
+)
+BEGIN
+    SELECT
+        p.id_purchase,
+        p.date_purchase,
+        pd.replacement_id,
+        r.name_replacement,
+        pd.purchase_number,
+        pd.unit_price,
+        (pd.purchase_number * pd.unit_price) AS total_price
+    FROM purchase p
+    JOIN purchase_detail pd ON pd.purchase_id = p.id_purchase
+    JOIN replacement r ON r.id_replacement = pd.replacement_id
+    WHERE p.supplier_id = p_id_supplier;
+END$$
+
+DELIMITER ;
+
+CALL purchase_report('S001');
+```
 
 **Caso de Uso 11: Calculadora de Descuentos en Ventas** 
 
@@ -650,9 +809,47 @@ Vendedor
 
 1. El vendedor ingresa al sistema. 
 2. El vendedor aplica un descuento a una venta. 
-3. El sistema llama a un procedimiento almacenado para calcular el total con descuento. 4. El procedimiento almacenado calcula el total con el descuento aplicado y registra la venta. 
+3. El sistema llama a un procedimiento almacenado para calcular el total con descuento. 
+4. El procedimiento almacenado calcula el total con el descuento aplicado y registra la venta. 
 
-**Casos de Uso para Funciones de Resumen** 
+```SQL
+DROP PROCEDURE IF EXISTS discount_sale;
+
+DELIMITER $$
+
+CREATE PROCEDURE discount_sale(
+    IN p_client_id VARCHAR(20),
+    IN p_bike_id VARCHAR(10),
+    IN p_bikes_number INT(10),
+    IN p_unit_price DECIMAL(10,2),
+    IN p_discount DECIMAL(5,2)
+)
+BEGIN
+    DECLARE total_amount DECIMAL(10,2);
+    DECLARE discount_amount DECIMAL(10,2);
+    DECLARE final_amount DECIMAL(10,2);
+    DECLARE new_id_sale_detail VARCHAR(10);
+
+    SET total_amount = p_bikes_number * p_unit_price;
+    SET discount_amount = total_amount * (p_discount / 100);
+    SET final_amount = total_amount - discount_amount;
+
+    INSERT INTO sale (date_sale, client_id, total_amount)
+    VALUES (CURDATE(), p_client_id, final_amount);
+
+    SET @last_sale_id = LAST_INSERT_ID();
+    SET new_id_sale_detail = LEFT(CONCAT('SD', UUID_SHORT()), 10);
+
+    INSERT INTO sale_detail (id_sale_detail, sale_id, bike_id, bikes_number, unit_price)
+    VALUES (new_id_sale_detail, @last_sale_id, p_bike_id, p_bikes_number, p_unit_price);
+END$$
+
+DELIMITER ;
+
+CALL discount_sale('C001', 'B001', 2, 500.00, 10.0);
+```
+
+## Casos de Uso para Funciones de Resumen 
 
 **Caso de Uso 1: Calcular el Total de Ventas Mensuales** 
 
@@ -665,8 +862,38 @@ Administrador
 **Flujo Principal:** 
 
 1. El administrador ingresa al sistema. 
-2. El administrador selecciona la opción para calcular el total de ventas mensuales. 3. El administrador ingresa el mes y el año. 
-3. El sistema llama a un procedimiento almacenado para calcular el total de ventas. 5. El procedimiento almacenado devuelve el total de ventas del mes especificado. 
+2. El administrador selecciona la opción para calcular el total de ventas mensuales. 
+3. El administrador ingresa el mes y el año. 
+4. El sistema llama a un procedimiento almacenado para calcular el total de ventas. 
+5. El procedimiento almacenado devuelve el total de ventas del mes especificado. 
+
+```SQL
+DROP PROCEDURE IF EXISTS calculate_monthly_sales;
+
+DELIMITER $$
+
+CREATE PROCEDURE calculate_monthly_sales(
+    IN p_month INT,
+    IN p_year INT,
+    OUT total_sales DECIMAL(10,2)
+)
+BEGIN
+    SELECT SUM(total_amount)
+    INTO total_sales
+    FROM sale
+    WHERE MONTH(date_sale) = p_month
+    AND YEAR(date_sale) = p_year;
+    
+    IF total_sales IS NULL THEN
+        SET total_sales = 0.00;
+    END IF;
+END$$
+
+DELIMITER ;
+
+CALL calculate_monthly_sales(7, 2024, @total_sales);
+SELECT @total_sales AS monthly_sales;
+```
 
 **Caso de Uso 2: Calcular el Promedio de Ventas por Cliente** 
 
@@ -679,8 +906,36 @@ Administrador
 **Flujo Principal:** 
 
 1. El administrador ingresa al sistema. 
-2. El administrador selecciona la opción para calcular el promedio de ventas por cliente. 3. El administrador ingresa el ID del cliente. 
-3. El sistema llama a un procedimiento almacenado para calcular el promedio de ventas. 5. El procedimiento almacenado devuelve el promedio de ventas del cliente especificado.
+2. El administrador selecciona la opción para calcular el promedio de ventas por cliente. 
+3. El administrador ingresa el ID del cliente. 
+4. El sistema llama a un procedimiento almacenado para calcular el promedio de ventas. 
+5. El procedimiento almacenado devuelve el promedio de ventas del cliente especificado.
+
+```SQL
+DROP PROCEDURE IF EXISTS calculate_average_sales;
+
+DELIMITER $$
+
+CREATE PROCEDURE calculate_average_sales(
+    IN p_client_id VARCHAR(20),
+    OUT average_sales DECIMAL(10,2)
+)
+BEGIN
+    SELECT AVG(total_amount)
+    INTO average_sales
+    FROM sale
+    WHERE client_id = p_client_id;
+    
+    IF average_sales IS NULL THEN
+        SET average_sales = 0.00;
+    END IF;
+END$$
+
+DELIMITER ;
+
+CALL calculate_average_sales('C001', @average_sales);
+SELECT @average_sales AS average_sales;
+```
 
 **Caso de Uso 3: Contar el Número de Ventas Realizadas en un Rango de Fechas** 
 
@@ -698,6 +953,31 @@ Administrador
 4. El sistema llama a un procedimiento almacenado para contar las ventas. 
 5. El procedimiento almacenado devuelve el número de ventas en el rango de fechas especificado. 
 
+```SQL
+DROP PROCEDURE IF EXISTS count_sales_by_date_range;
+
+DELIMITER $$
+
+CREATE PROCEDURE count_sales_by_date_range(
+    IN p_start_date DATE,
+    IN p_end_date DATE,
+    OUT total_sales INT
+)
+BEGIN
+    SET total_sales = 0;
+
+    SELECT COUNT(*)
+    INTO total_sales
+    FROM sale
+    WHERE date_sale BETWEEN p_start_date AND p_end_date;
+END$$
+
+DELIMITER ;
+
+CALL count_sales_by_date_range('2024-07-01', '2024-07-31', @total_sales);
+SELECT @total_sales AS total_sales;
+```
+
 **Caso de Uso 4: Calcular el Total de Repuestos Comprados por Proveedor** 
 
 **Descripción:** Este caso de uso describe cómo el sistema calcula el total de repuestos comprados a un proveedor específico. 
@@ -714,6 +994,30 @@ Administrador de Compras
 4. El sistema llama a un procedimiento almacenado para calcular el total de repuestos. 
 5. El procedimiento almacenado devuelve el total de repuestos comprados al proveedor especificado. 
 
+```SQL
+DROP PROCEDURE IF EXISTS calculate_total_replacements_by_supplier;
+
+DELIMITER $$
+
+CREATE PROCEDURE calculate_total_replacements_by_supplier(
+    IN p_id_supplier VARCHAR(20),
+    OUT total_replacements INT
+)
+BEGIN
+    SET total_replacements = 0;
+
+    SELECT SUM(pd.purchase_number) INTO total_replacements
+    FROM purchase_detail pd
+    JOIN purchase p ON pd.purchase_id = p.id_purchase
+    WHERE p.supplier_id = p_id_supplier;
+END$$
+
+DELIMITER ;
+
+CALL calculate_total_replacements_by_supplier('S001', @total_replacements);
+SELECT @total_replacements AS total_replacements;
+```
+
 **Caso de Uso 5: Calcular el Ingreso Total por Año** 
 
 **Descripción:** Este caso de uso describe cómo el sistema calcula el ingreso total generado en un año específico. 
@@ -725,9 +1029,35 @@ Administrador
 **Flujo Principal:** 
 
 1. El administrador ingresa al sistema. 
-2. El administrador selecciona la opción para calcular el ingreso total por año. 3. El administrador ingresa el año. 
-3. El sistema llama a un procedimiento almacenado para calcular el ingreso total.
-4. El procedimiento almacenado devuelve el ingreso total del año especificado. **Caso de Uso 6: Calcular el Número de Clientes Activos en un Mes** 
+2. El administrador selecciona la opción para calcular el ingreso total por año. 
+3. El administrador ingresa el año. 
+4. El sistema llama a un procedimiento almacenado para calcular el ingreso total.
+5. El procedimiento almacenado devuelve el ingreso total del año especificado.
+
+```SQL
+DROP PROCEDURE IF EXISTS calculate_total_income_by_year;
+
+DELIMITER $$
+
+CREATE PROCEDURE calculate_total_income_by_year(
+    IN p_year INT,
+    OUT total_income DECIMAL(10,2)
+)
+BEGIN
+    SET total_income = 0.00;
+
+    SELECT SUM(total_amount) INTO total_income
+    FROM sale
+    WHERE YEAR(date_sale) = p_year;
+END$$
+
+DELIMITER ;
+
+CALL calculate_total_income_by_year(2024, @total_income);
+SELECT @total_income AS total_income;
+```
+
+**Caso de Uso 6: Calcular el Número de Clientes Activos en un Mes** 
 
 **Descripción:** Este caso de uso describe cómo el sistema cuenta el número de clientes que han realizado al menos una compra en un mes específico. 
 
@@ -738,9 +1068,35 @@ Administrador
 **Flujo Principal:** 
 
 1. El administrador ingresa al sistema. 
-2. El administrador selecciona la opción para contar el número de clientes activos en un mes. 3. El administrador ingresa el mes y el año. 
-3. El sistema llama a un procedimiento almacenado para contar los clientes activos. 
-4. El procedimiento almacenado devuelve el número de clientes que han realizado compras en el mes especificado. 
+2. El administrador selecciona la opción para contar el número de clientes activos en un mes. 
+3. El administrador ingresa el mes y el año. 
+4. El sistema llama a un procedimiento almacenado para contar los clientes activos. 
+5. El procedimiento almacenado devuelve el número de clientes que han realizado compras en el mes especificado. 
+
+```SQL
+DROP PROCEDURE IF EXISTS count_active_clients_by_month;
+
+DELIMITER $$
+
+CREATE PROCEDURE count_active_clients_by_month(
+    IN p_month INT,
+    IN p_year INT,
+    OUT active_client_count INT
+)
+BEGIN
+    SET active_client_count = 0;
+
+    SELECT COUNT(DISTINCT client_id) INTO active_client_count
+    FROM sale
+    WHERE MONTH(date_sale) = p_month
+    AND YEAR(date_sale) = p_year;
+END$$
+
+DELIMITER ;
+
+CALL count_active_clients_by_month(7, 2024, @active_client_count);
+SELECT @active_client_count AS active_client_count;
+```
 
 **Caso de Uso 7: Calcular el Promedio de Compras por Proveedor** 
 
@@ -753,8 +1109,43 @@ Administrador de Compras
 **Flujo Principal:** 
 
 1. El administrador de compras ingresa al sistema. 
-2. El administrador selecciona la opción para calcular el promedio de compras por proveedor. 3. El administrador ingresa el ID del proveedor. 
-3. El sistema llama a un procedimiento almacenado para calcular el promedio de compras. 5. El procedimiento almacenado devuelve el promedio de compras del proveedor especificado. 
+2. El administrador selecciona la opción para calcular el promedio de compras por proveedor. 
+3. El administrador ingresa el ID del proveedor. 
+4. El sistema llama a un procedimiento almacenado para calcular el promedio de compras. 
+5. El procedimiento almacenado devuelve el promedio de compras del proveedor especificado. 
+
+```SQL
+DROP PROCEDURE IF EXISTS calculate_average_purchases_by_supplier;
+
+DELIMITER $$
+
+CREATE PROCEDURE calculate_average_purchases_by_supplier(
+    IN p_supplier_id VARCHAR(10),
+    OUT avg_purchases DECIMAL(10,2)
+)
+BEGIN
+    DECLARE total_purchases INT;
+    DECLARE number_of_purchases INT;
+    
+    SELECT COUNT(*) INTO number_of_purchases
+    FROM purchase
+    WHERE supplier_id = p_supplier_id;
+
+    SELECT COUNT(DISTINCT id_purchase) INTO total_purchases
+    FROM purchase;
+
+    IF total_purchases > 0 THEN
+        SET avg_purchases = number_of_purchases / total_purchases;
+    ELSE
+        SET avg_purchases = 0;
+    END IF;
+END$$
+
+DELIMITER ;
+
+CALL calculate_average_purchases_by_supplier('S002', @avg_purchase_amount);
+SELECT @avg_purchase_amount AS avg_purchase_amount;
+```
 
 **Caso de Uso 8: Calcular el Total de Ventas por Marca** 
 
@@ -767,7 +1158,31 @@ Administrador
 **Flujo Principal:** 
 
 1. El administrador ingresa al sistema. 
-2. El administrador selecciona la opción para calcular el total de ventas por marca. 3. El sistema llama a un procedimiento almacenado para calcular el total de ventas por marca. 4. El procedimiento almacenado devuelve el total de ventas agrupadas por marca.
+2. El administrador selecciona la opción para calcular el total de ventas por marca. 
+3. El sistema llama a un procedimiento almacenado para calcular el total de ventas por marca. 
+4. El procedimiento almacenado devuelve el total de ventas agrupadas por marca.
+
+```SQL
+DROP PROCEDURE IF EXISTS calculate_total_sales_by_brand;
+
+DELIMITER $$
+
+CREATE PROCEDURE calculate_total_sales_by_brand()
+BEGIN
+    SELECT
+        b.brand_id AS brand_id,
+        br.name_brand AS brand_name,
+        SUM(sd.unit_price * sd.bikes_number) AS total_sales
+    FROM sale_detail sd
+    JOIN bike b ON sd.bike_id = b.id_bike
+    JOIN brand br ON b.brand_id = br.id_brand
+    GROUP BY b.brand_id, br.name_brand;
+END$$
+
+DELIMITER ;
+
+CALL calculate_total_sales_by_brand();
+```
 
 **Caso de Uso 9: Calcular el Promedio de Precios de Bicicletas por Marca** 
 
@@ -780,7 +1195,30 @@ Administrador
 **Flujo Principal:** 
 
 1. El administrador ingresa al sistema. 
-2. El administrador selecciona la opción para calcular el promedio de precios por marca. 3. El sistema llama a un procedimiento almacenado para calcular el promedio de precios. 4. El procedimiento almacenado devuelve el promedio de precios agrupadas por marca. 
+2. El administrador selecciona la opción para calcular el promedio de precios por marca. 
+3. El sistema llama a un procedimiento almacenado para calcular el promedio de precios. 
+4. El procedimiento almacenado devuelve el promedio de precios agrupadas por marca. 
+
+```SQL
+DROP PROCEDURE IF EXISTS calculate_average_price_by_brand;
+
+DELIMITER $$
+
+CREATE PROCEDURE calculate_average_price_by_brand()
+BEGIN
+    SELECT 
+        b.brand_id AS brand_id,
+        br.name_brand AS brand_name,
+        AVG(b.price) AS average_price
+    FROM bike b
+    JOIN brand br ON b.brand_id = br.id_brand
+    GROUP BY b.brand_id, br.name_brand;
+END$$
+
+DELIMITER ;
+
+CALL calculate_average_price_by_brand();
+```
 
 **Caso de Uso 10: Contar el Número de Repuestos por Proveedor** 
 
@@ -793,8 +1231,30 @@ Administrador de Compras
 **Flujo Principal:** 
 
 1. El administrador de compras ingresa al sistema. 
-2. El administrador selecciona la opción para contar el número de repuestos por proveedor. 3. El sistema llama a un procedimiento almacenado para contar los repuestos. 
-3. El procedimiento almacenado devuelve el número de repuestos suministrados por cada proveedor. 
+2. El administrador selecciona la opción para contar el número de repuestos por proveedor. 
+3. El sistema llama a un procedimiento almacenado para contar los repuestos. 
+4. El procedimiento almacenado devuelve el número de repuestos suministrados por cada proveedor. 
+
+```SQL
+DROP PROCEDURE IF EXISTS count_parts_by_supplier;
+
+DELIMITER $$
+
+CREATE PROCEDURE count_parts_by_supplier()
+BEGIN
+    SELECT
+        s.id_supplier AS supplier_id,
+        s.name_supplier AS supplier_name,
+        COUNT(r.id_replacement) AS number_of_parts
+    FROM replacement r
+    JOIN supplier s ON r.supplier_id = s.id_supplier
+    GROUP BY s.id_supplier, s.name_supplier;
+END$$
+
+DELIMITER ;
+
+CALL count_parts_by_supplier();
+```
 
 **Caso de Uso 11: Calcular el Total de Ingresos por Cliente** 
 
@@ -807,7 +1267,13 @@ Administrador
 **Flujo Principal:** 
 
 1. El administrador ingresa al sistema. 
-2. El administrador selecciona la opción para calcular el total de ingresos por cliente. 3. El sistema llama a un procedimiento almacenado para calcular el total de ingresos. 4. El procedimiento almacenado devuelve el total de ingresos generados por cada cliente. 
+2. El administrador selecciona la opción para calcular el total de ingresos por cliente. 
+3. El sistema llama a un procedimiento almacenado para calcular el total de ingresos. 
+4. El procedimiento almacenado devuelve el total de ingresos generados por cada cliente. 
+
+```SQL
+
+```
 
 **Caso de Uso 12: Calcular el Promedio de Compras Mensuales** 
 
@@ -822,7 +1288,13 @@ Administrador
 1. El administrador ingresa al sistema. 
 2. El administrador selecciona la opción para calcular el promedio de compras mensuales. 
 3. El sistema llama a un procedimiento almacenado para calcular el promedio de compras mensuales. 
-4. El procedimiento almacenado devuelve el promedio de compras realizadas mensualmente. **Caso de Uso 13: Calcular el Total de Ventas por Día de la Semana** 
+4. El procedimiento almacenado devuelve el promedio de compras realizadas mensualmente. 
+
+```SQL
+
+```
+
+**Caso de Uso 13: Calcular el Total de Ventas por Día de la Semana** 
 
 **Descripción:** Este caso de uso describe cómo el sistema calcula el total de ventas realizadas en cada día de la semana. 
 
@@ -833,7 +1305,13 @@ Administrador
 **Flujo Principal:** 
 
 1. El administrador ingresa al sistema. 
-2. El administrador selecciona la opción para calcular el total de ventas por día de la semana. 3. El sistema llama a un procedimiento almacenado para calcular el total de ventas. 4. El procedimiento almacenado devuelve el total de ventas agrupadas por día de la semana. 
+2. El administrador selecciona la opción para calcular el total de ventas por día de la semana. 
+3. El sistema llama a un procedimiento almacenado para calcular el total de ventas. 
+4. El procedimiento almacenado devuelve el total de ventas agrupadas por día de la semana. 
+
+```SQL
+
+```
 
 **Caso de Uso 14: Contar el Número de Ventas por Categoría de Bicicleta** 
 
@@ -847,7 +1325,12 @@ Administrador
 
 1. El administrador ingresa al sistema. 
 2. El administrador selecciona la opción para contar el número de ventas por categoría de bicicleta. 
-3. El sistema llama a un procedimiento almacenado para contar las ventas. 4. El procedimiento almacenado devuelve el número de ventas por categoría de bicicleta. 
+3. El sistema llama a un procedimiento almacenado para contar las ventas. 
+4. El procedimiento almacenado devuelve el número de ventas por categoría de bicicleta. 
+
+```SQL
+
+```
 
 **Caso de Uso 15: Calcular el Total de Ventas por Año y Mes** 
 
@@ -861,10 +1344,10 @@ Administrador
 
 1. El administrador ingresa al sistema. 
 2. El administrador selecciona la opción para calcular el total de ventas por año y mes.
-3. El sistema llama a un procedimiento almacenado para calcular el total de ventas. 4. El procedimiento almacenado devuelve el total de ventas agrupadas por año y mes. **Requerimientos de entrega** 
-4. Crear repositorio en GitHub 
-5. Cargar en el repositorio el DER y el archivo con la definición de la estructura de la base de datos. 
-6. Cargar en el repositorio los archivos donde se encuentren los comandos de inserción de los datos requeridos para cumplir con cada una de las consultas. 
-7. Crear readme con cada descripción y Nro de caso de uso y su respectiva solución. **Parámetros de evaluación** 
-8. El proyecto tendrá un peso del 60%. 
-9. La entrega del proyecto tendrá un valor del 45% y la sustentación privada tendra un valor del 55%. La sustentacion tendra una duración de 10 minutos donde cada camper tendrá que resolver 5 consultas desarrolladas en cada caso de uso.
+3. El sistema llama a un procedimiento almacenado para calcular el total de ventas. 
+4. El procedimiento almacenado devuelve el total de ventas agrupadas por año y mes.
+
+```SQL
+
+```
+

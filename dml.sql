@@ -272,4 +272,439 @@ JOIN sale s ON s.client_id = cli.id_client
 WHERE s.date_sale BETWEEN '2024-07-01' AND '2024-08-01';
 
 --STORED PROCEDURES
+--USE CASE 6
+--Shows how the system allows for mass updating of prices for all bikes of a specific brand.
+DROP PROCEDURE IF EXISTS update_bike_prices();
+
+DELIMITER $$
+
+CREATE PROCEDURE update_bike_prices(
+    IN p_brand_id VARCHAR(20),
+    IN p_percentage_increment DECIMAL(5,2)
+)
+BEGIN
+    IF p_percentage_increment <= 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The percentage increase must be greater than 0.';
+    ELSE
+        UPDATE bike
+        SET price = price * (1 + (p_percentage_increment / 100))
+        WHERE brand_id = p_brand_id;
+    END IF;
+END$$
+
+DELIMITER ;
+
+CALL update_bike_prices('B001', 10.0);
+
+--USE CASE 7
+--Shows how the system generates a report of customers grouped by city.
+DROP PROCEDURE IF EXISTS clients_by_city;
+
+DELIMITER $$
+
+CREATE PROCEDURE clients_by_city()
+BEGIN
+    SELECT c.name_city AS city, COUNT(cli.id_client) AS total_clients
+    FROM client cli 
+    JOIN city c ON cli.city_id = c.id_city
+    GROUP BY c.name_city;
+END$$
+
+DELIMITER ;
+
+CALL clients_by_city();
+
+--USE CASE 8
+--Shows how the system checks the stock of a bicycle before allowing the sale.
+DROP PROCEDURE IF EXISTS check_stock;
+
+DELIMITER $$
+
+CREATE PROCEDURE check_stock(
+    IN p_id_bike VARCHAR(10),
+    IN requested INT,
+    OUT stock_status VARCHAR(50)
+)
+BEGIN
+    DECLARE current_stock INT;
+
+    SELECT stock
+    INTO current_stock
+    FROM bike
+    WHERE id_bike = p_id_bike;
+
+    IF current_stock >= requested THEN
+        SET stock_status = 'Sufficient stock available';
+    ELSE 
+        SET stock_status = 'Insufficient stock';
+    END IF;
+END$$
+
+DELIMITER ;
+
+CALL check_stock('B001', 2, @status);
+SELECT @status AS stock_status;
+
+--USE CASE 9
+--Shows how the system records the return of a bicycle by a customer.
+DROP PROCEDURE IF EXISTS return_sale;
+
+DELIMITER $$
+
+CREATE PROCEDURE return_sale(
+    IN p_id_sale INT,
+    IN p_id_bike VARCHAR(10),
+    IN p_refund_amount INT
+)
+BEGIN
+    DECLARE new_stock INT;
+
+    SELECT stock 
+    INTO new_stock 
+    FROM bike
+    WHERE id_bike = p_id_bike;
+
+    SET new_stock = new_stock + p_refund_amount;
+
+    UPDATE bike
+    SET stock = new_stock
+    WHERE id_bike = p_id_bike;
+
+    DELETE FROM sale_detail WHERE sale_id = p_id_sale;
+
+    DELETE FROM sale WHERE id_sale = p_id_sale;
+END$$
+
+DELIMITER ;
+
+CALL return_sale(1, 'B001', 1);
+
+--USE CASE 10
+--Shows how the system generates a report of purchases made to a specific supplier, showing all the details of the purchases.
+DROP PROCEDURE IF EXISTS purchase_report;
+
+DELIMITER $$
+
+CREATE PROCEDURE purchase_report(
+    IN p_id_supplier VARCHAR(20)
+)
+BEGIN
+    SELECT
+        p.id_purchase,
+        p.date_purchase,
+        pd.replacement_id,
+        r.name_replacement,
+        pd.purchase_number,
+        pd.unit_price,
+        (pd.purchase_number * pd.unit_price) AS total_price
+    FROM purchase p
+    JOIN purchase_detail pd ON pd.purchase_id = p.id_purchase
+    JOIN replacement r ON r.id_replacement = pd.replacement_id
+    WHERE p.supplier_id = p_id_supplier;
+END$$
+
+DELIMITER ;
+
+CALL purchase_report('S001');
+
+--USE CASE 11
+--Shows how the system applies a discount to a sale before recording the details of the sale.
+DROP PROCEDURE IF EXISTS discount_sale;
+
+DELIMITER $$
+
+CREATE PROCEDURE discount_sale(
+    IN p_client_id VARCHAR(20),
+    IN p_bike_id VARCHAR(10),
+    IN p_bikes_number INT(10),
+    IN p_unit_price DECIMAL(10,2),
+    IN p_discount DECIMAL(5,2)
+)
+BEGIN
+    DECLARE total_amount DECIMAL(10,2);
+    DECLARE discount_amount DECIMAL(10,2);
+    DECLARE final_amount DECIMAL(10,2);
+    DECLARE new_id_sale_detail VARCHAR(10);
+
+    SET total_amount = p_bikes_number * p_unit_price;
+    SET discount_amount = total_amount * (p_discount / 100);
+    SET final_amount = total_amount - discount_amount;
+
+    INSERT INTO sale (date_sale, client_id, total_amount)
+    VALUES (CURDATE(), p_client_id, final_amount);
+
+    SET @last_sale_id = LAST_INSERT_ID();
+    SET new_id_sale_detail = LEFT(CONCAT('SD', UUID_SHORT()), 10);
+
+    INSERT INTO sale_detail (id_sale_detail, sale_id, bike_id, bikes_number, unit_price)
+    VALUES (new_id_sale_detail, @last_sale_id, p_bike_id, p_bikes_number, p_unit_price);
+END$$
+
+DELIMITER ;
+
+CALL discount_sale('C001', 'B001', 2, 500.00, 10.0);
+
+--SUMMARY FUNCTIONS
 --USE CASE 1
+--Shows how the system calculates the total sales made in a specific month.
+DROP PROCEDURE IF EXISTS calculate_monthly_sales;
+
+DELIMITER $$
+
+CREATE PROCEDURE calculate_monthly_sales(
+    IN p_month INT,
+    IN p_year INT,
+    OUT total_sales DECIMAL(10,2)
+)
+BEGIN
+    SELECT SUM(total_amount)
+    INTO total_sales
+    FROM sale
+    WHERE MONTH(date_sale) = p_month
+    AND YEAR(date_sale) = p_year;
+    
+    IF total_sales IS NULL THEN
+        SET total_sales = 0.00;
+    END IF;
+END$$
+
+DELIMITER ;
+
+CALL calculate_monthly_sales(7, 2024, @total_sales);
+SELECT @total_sales AS monthly_sales;
+
+
+--USE CASE 2
+--Shows how the system calculates the average sales made by a specific customer.
+DROP PROCEDURE IF EXISTS calculate_average_sales;
+
+DELIMITER $$
+
+CREATE PROCEDURE calculate_average_sales(
+    IN p_client_id VARCHAR(20),
+    OUT average_sales DECIMAL(10,2)
+)
+BEGIN
+    SELECT AVG(total_amount)
+    INTO average_sales
+    FROM sale
+    WHERE client_id = p_client_id;
+    
+    IF average_sales IS NULL THEN
+        SET average_sales = 0.00;
+    END IF;
+END$$
+
+DELIMITER ;
+
+CALL calculate_average_sales('C001', @average_sales);
+SELECT @average_sales AS average_sales;
+
+--USE CASE 3
+--Shows how the system counts the number of sales made within a specific date range.
+DROP PROCEDURE IF EXISTS count_sales_by_date_range;
+
+DELIMITER $$
+
+CREATE PROCEDURE count_sales_by_date_range(
+    IN p_start_date DATE,
+    IN p_end_date DATE,
+    OUT total_sales INT
+)
+BEGIN
+    SET total_sales = 0;
+
+    SELECT COUNT(*)
+    INTO total_sales
+    FROM sale
+    WHERE date_sale BETWEEN p_start_date AND p_end_date;
+END$$
+
+DELIMITER ;
+
+CALL count_sales_by_date_range('2024-07-01', '2024-07-31', @total_sales);
+SELECT @total_sales AS total_sales;
+
+--USE CASE 4
+--Shows how the system calculates the total number of spare parts purchased from a specific supplier.
+DROP PROCEDURE IF EXISTS calculate_total_replacements_by_supplier;
+
+DELIMITER $$
+
+CREATE PROCEDURE calculate_total_replacements_by_supplier(
+    IN p_id_supplier VARCHAR(20),
+    OUT total_replacements INT
+)
+BEGIN
+    SET total_replacements = 0;
+
+    SELECT SUM(pd.purchase_number) INTO total_replacements
+    FROM purchase_detail pd
+    JOIN purchase p ON pd.purchase_id = p.id_purchase
+    WHERE p.supplier_id = p_id_supplier;
+END$$
+
+DELIMITER ;
+
+CALL calculate_total_replacements_by_supplier('S001', @total_replacements);
+SELECT @total_replacements AS total_replacements;
+
+--USE CASE 5
+--Shows how the system calculates the total revenue generated in a specific year.
+DROP PROCEDURE IF EXISTS calculate_total_income_by_year;
+
+DELIMITER $$
+
+CREATE PROCEDURE calculate_total_income_by_year(
+    IN p_year INT,
+    OUT total_income DECIMAL(10,2)
+)
+BEGIN
+    SET total_income = 0.00;
+
+    SELECT SUM(total_amount) INTO total_income
+    FROM sale
+    WHERE YEAR(date_sale) = p_year;
+END$$
+
+DELIMITER ;
+
+CALL calculate_total_income_by_year(2024, @total_income);
+SELECT @total_income AS total_income;
+
+--USE CASE 6
+--Shows how the system counts the number of customers who have made at least one purchase in a specific month.
+DROP PROCEDURE IF EXISTS count_active_clients_by_month;
+
+DELIMITER $$
+
+CREATE PROCEDURE count_active_clients_by_month(
+    IN p_month INT,
+    IN p_year INT,
+    OUT active_client_count INT
+)
+BEGIN
+    SET active_client_count = 0;
+
+    SELECT COUNT(DISTINCT client_id) INTO active_client_count
+    FROM sale
+    WHERE MONTH(date_sale) = p_month
+    AND YEAR(date_sale) = p_year;
+END$$
+
+DELIMITER ;
+
+CALL count_active_clients_by_month(7, 2024, @active_client_count);
+SELECT @active_client_count AS active_client_count;
+
+--USE CASE 7
+--Shows how the system calculates the average purchases made from a specific supplier.
+DROP PROCEDURE IF EXISTS calculate_average_purchases_by_supplier;
+
+DELIMITER $$
+
+CREATE PROCEDURE calculate_average_purchases_by_supplier(
+    IN p_supplier_id VARCHAR(10),
+    OUT avg_purchases DECIMAL(10,2)
+)
+BEGIN
+    DECLARE total_purchases INT;
+    DECLARE number_of_purchases INT;
+    
+    SELECT COUNT(*) INTO number_of_purchases
+    FROM purchase
+    WHERE supplier_id = p_supplier_id;
+
+    SELECT COUNT(DISTINCT id_purchase) INTO total_purchases
+    FROM purchase;
+
+    IF total_purchases > 0 THEN
+        SET avg_purchases = number_of_purchases / total_purchases;
+    ELSE
+        SET avg_purchases = 0;
+    END IF;
+END$$
+
+DELIMITER ;
+
+CALL calculate_average_purchases_by_supplier('S002', @avg_purchase_amount);
+SELECT @avg_purchase_amount AS avg_purchase_amount;
+
+--USE CASE 8
+--Shows how the system calculates total sales grouped by the brand of bicycles sold.
+DROP PROCEDURE IF EXISTS calculate_total_sales_by_brand;
+
+DELIMITER $$
+
+CREATE PROCEDURE calculate_total_sales_by_brand()
+BEGIN
+    SELECT
+        b.brand_id AS brand_id,
+        br.name_brand AS brand_name,
+        SUM(sd.unit_price * sd.bikes_number) AS total_sales
+    FROM sale_detail sd
+    JOIN bike b ON sd.bike_id = b.id_bike
+    JOIN brand br ON b.brand_id = br.id_brand
+    GROUP BY b.brand_id, br.name_brand;
+END$$
+
+DELIMITER ;
+
+CALL calculate_total_sales_by_brand();
+
+--USE CASE 9
+--Shows how the system calculates the average price of bicycles grouped by brand.
+DROP PROCEDURE IF EXISTS calculate_average_price_by_brand;
+
+DELIMITER $$
+
+CREATE PROCEDURE calculate_average_price_by_brand()
+BEGIN
+    SELECT 
+        b.brand_id AS brand_id,
+        br.name_brand AS brand_name,
+        AVG(b.price) AS average_price
+    FROM bike b
+    JOIN brand br ON b.brand_id = br.id_brand
+    GROUP BY b.brand_id, br.name_brand;
+END$$
+
+DELIMITER ;
+
+CALL calculate_average_price_by_brand();
+
+--USE CASE 10
+--Shows how the system counts the number of spare parts supplied by each supplier.
+DROP PROCEDURE IF EXISTS count_parts_by_supplier;
+
+DELIMITER $$
+
+CREATE PROCEDURE count_parts_by_supplier()
+BEGIN
+    SELECT
+        s.id_supplier AS supplier_id,
+        s.name_supplier AS supplier_name,
+        COUNT(r.id_replacement) AS number_of_parts
+    FROM replacement r
+    JOIN supplier s ON r.supplier_id = s.id_supplier
+    GROUP BY s.id_supplier, s.name_supplier;
+END$$
+
+DELIMITER ;
+
+CALL count_parts_by_supplier();
+
+--USE CASE 11
+--Shows how the system calculates the total revenue generated by each customer.
+
+--USE CASE 12
+--Shows how the system calculates the average monthly purchases made by all customers.
+
+--USE CASE 13
+--Shows how the system calculates the total sales made on each day of the week.
+
+--USE CASE 14
+--Shows how the system counts the number of sales made for each bike category (e.g. mountain, road, hybrid).
+
+--USE CASE 15
+--Shows how the system calculates the total sales made each month, grouped by year.
