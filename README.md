@@ -1525,7 +1525,22 @@ Administrador
 4. El procedimiento almacenado devuelve el total de ventas agrupadas por día de la semana. 
 
 ```SQL
+DROP PROCEDURE IF EXISTS sales_day;
 
+DELIMITER $$
+
+CREATE PROCEDURE sales_day(
+    IN p_day INT
+)
+BEGIN
+    SELECT SUM(total_amount) AS total_sales
+    FROM sale s
+    WHERE DAY(s.date_sale) = p_day;
+END$$
+
+DELIMITER ;
+
+CALL sales_day(28);
 ```
 
 **Caso de Uso 14: Contar el Número de Ventas por Categoría de Bicicleta** 
@@ -1544,7 +1559,28 @@ Administrador
 4. El procedimiento almacenado devuelve el número de ventas por categoría de bicicleta. 
 
 ```SQL
+DELIMITER $$
 
+CREATE PROCEDURE GetSalesCountByModel(
+    IN p_model_id VARCHAR(20)
+)
+BEGIN
+    SELECT 
+        m.id_model,
+        m.name_model,
+        (SELECT COUNT(sd.bike_id) 
+        FROM sale_detail sd 
+        JOIN bike b ON sd.bike_id = b.id_bike 
+        WHERE b.model_id = m.id_model) AS sales_count
+    FROM 
+        model m
+    WHERE 
+        m.id_model = p_model_id;
+END $$
+
+DELIMITER ;
+
+CALL GetSalesCountByModel('M001');
 ```
 
 **Caso de Uso 15: Calcular el Total de Ventas por Año y Mes** 
@@ -1563,6 +1599,21 @@ Administrador
 4. El procedimiento almacenado devuelve el total de ventas agrupadas por año y mes.
 
 ```SQL
+DELIMITER $$
 
+CREATE PROCEDURE SellsByMonthYear (
+    IN p_date_year INT,
+    IN p_date_month INT
+) 
+BEGIN 
+    SELECT YEAR(date_sale) AS year, MONTH(date_sale) AS month, SUM(total_amount) AS total_amount
+    FROM sale 
+    WHERE YEAR(date_sale) = p_date_year AND MONTH(date_sale) = p_date_month
+    GROUP BY YEAR(date_sale), MONTH(date_sale);
+END $$
+
+DELIMITER ;
+
+CALL SellsByMonthYear (2024,07);
 ```
 
