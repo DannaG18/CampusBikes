@@ -526,6 +526,32 @@ Vendedor
 3. El sistema llama a un procedimiento almacenado para actualizar el inventario de las bicicletas vendidas. 
 4. El procedimiento almacenado actualiza el stock de cada bicicleta. 
 
+```sql
+DELIMITER $$
+
+CREATE PROCEDURE IF NOT EXISTS UpdateBikesStock (
+    IN p_id_bike VARCHAR(10),
+    IN p_new_stock INT,
+    OUT p_updated_stock INT
+)
+BEGIN 
+  
+    UPDATE bike
+    SET stock = p_new_stock
+    WHERE id_bike = p_id_bike;
+
+
+    SELECT stock INTO p_updated_stock
+    FROM bike
+    WHERE id_bike = p_id_bike;
+END $$
+
+DELIMITER ;
+
+CALL UpdateBikesStock ('B001', 100, @updated_stock);
+SELECT @updated_stock AS updated_stock;
+```
+
 **Caso de Uso 2: Registro de Nueva Venta** 
 
 **Descripción:** Este caso de uso describe cómo el sistema registra una nueva venta, incluyendo la creación de la venta y la inserción de los detalles de la venta. 
@@ -540,6 +566,59 @@ Vendedor
 2. El vendedor registra una nueva venta. 
 3. El sistema llama a un procedimiento almacenado para registrar la venta y sus detalles. 
 4. El procedimiento almacenado inserta la venta y sus detalles en las tablas correspondientes. 
+
+```sql
+DELIMITER $$
+
+CREATE PROCEDURE SaleRegister (
+    IN p_date_sale DATE,
+    IN p_client_id VARCHAR(20),
+    IN p_total_amount DECIMAL(10,2),
+    IN p_id_sale_detail VARCHAR(10),
+    IN p_bike1_id VARCHAR(10),
+    IN p_bike1_number INT,
+    IN p_bike1_price DECIMAL(10,2)
+)
+BEGIN
+    DECLARE v_sale_id INT;
+
+    INSERT INTO sale (date_sale, client_id, total_amount)
+    VALUES (p_date_sale, p_client_id, p_total_amount);
+
+    SET v_sale_id = LAST_INSERT_ID();
+
+    INSERT INTO sale_detail (id_sale_detail, sale_id, bike_id, bikes_number, unit_price)
+    VALUES (p_id_sale_detail, v_sale_id, p_bike1_id, p_bike1_number, p_bike1_price);
+
+    SELECT 
+        s.id_sale, 
+        s.date_sale, 
+        s.client_id, 
+        s.total_amount,
+        sd.id_sale_detail,
+        sd.bike_id, 
+        sd.bikes_number, 
+        sd.unit_price
+    FROM 
+        sale s
+    JOIN 
+        sale_detail sd ON s.id_sale = sd.sale_id
+    WHERE 
+        s.id_sale = v_sale_id;
+END $$
+
+DELIMITER ;
+
+CALL SaleRegister(
+    '2024-07-26', 
+    'C002', 
+    1250.00, 
+    'SD005',
+    'B002', 
+    2, 
+    500.00
+);
+```
 
 **Caso de Uso 3: Generación de Reporte de Ventas por Cliente** 
 
@@ -556,6 +635,34 @@ Administrador
 3. El sistema llama a un procedimiento almacenado para generar el reporte. 
 4. El procedimiento almacenado obtiene las ventas y los detalles de las ventas realizadas por el cliente. 
 
+```sql
+DELIMITER $$
+
+CREATE PROCEDURE SaleReport (
+    IN p_client_id VARCHAR(20) 
+)
+BEGIN 
+    SELECT 
+        s.id_sale, 
+        s.date_sale, 
+        s.client_id, 
+        s.total_amount,
+        sd.id_sale_detail,
+        sd.bike_id, 
+        sd.bikes_number, 
+        sd.unit_price
+    FROM sale AS s
+    JOIN sale_detail AS sd ON sd.sale_id = s.id_sale
+    WHERE s.client_id = p_client_id;
+END $$
+
+DELIMITER ;
+
+CALL SaleReport (
+    'C002'
+);
+```
+
 **Caso de Uso 4: Registro de Compra de Repuestos** 
 
 **Descripción:** Este caso de uso describe cómo el sistema registra una nueva compra de repuestos a un proveedor. 
@@ -571,6 +678,48 @@ Administrador de Compras
 3. El sistema llama a un procedimiento almacenado para registrar la compra y sus detalles.
 4. El procedimiento almacenado inserta la compra y sus detalles en las tablas correspondientes y actualiza el stock de repuestos. 
 
+```sql
+DELIMITER $$
+
+CREATE PROCEDURE PurchaseRegister (
+    IN p_date_purchase DATE,
+    IN p_supplier_id VARCHAR(20),
+    IN p_total_amount DECIMAL(10,2),
+    IN p_id_purchase_detail VARCHAR(10),
+    IN p_replacement_id VARCHAR(5),
+    IN p_purchase_number INT(10),
+    IN p_unit_price DECIMAL(10,2)
+)
+BEGIN
+    DECLARE p_purchase_id INT;
+
+    INSERT INTO purchase (date_purchase, supplier_id, total_amount)
+    VALUES (p_date_purchase, p_supplier_id, p_total_amount);
+
+    SET p_purchase_id = LAST_INSERT_ID();
+
+    INSERT INTO purchase_detail (id_purchase_detail, purchase_id, replacement_id, purchase_number, unit_price)
+    VALUES (p_id_purchase_detail, p_purchase_id, p_replacement_id, p_purchase_number, p_unit_price);
+
+    UPDATE replacement 
+    SET stock = stock + p_purchase_number
+    WHERE id_replacement = p_replacement_id;
+
+END $$
+
+DELIMITER ;
+
+CALL PurchaseRegister(
+    '2024-07-26', 
+    'S001', 
+    5000.00, 
+    'PD004', 
+    'R001', 
+    10, 
+    100.00
+);
+```
+
 **Caso de Uso 5: Generación de Reporte de Inventario** 
 
 **Descripción:** Este caso de uso describe cómo el sistema genera un reporte de inventario de bicicletas y repuestos. 
@@ -585,6 +734,40 @@ Administrador de Inventario
 2. El administrador solicita un reporte de inventario. 
 3. El sistema llama a un procedimiento almacenado para generar el reporte. 
 4. El procedimiento almacenado obtiene la información del inventario de bicicletas y repuestos. 
+
+```sql
+DELIMITER $$
+
+CREATE PROCEDURE GenerateInventoryReport()
+BEGIN
+
+    SELECT 
+        b.id_bike AS BikeID,
+        b.model_id AS ModelID,
+        m.name_model AS ModelName,
+        b.brand_id AS BrandID,
+        br.name_brand AS BrandName,
+        b.price AS Price,
+        b.stock AS Stock
+    FROM 
+        bike b
+    JOIN 
+        model m ON b.model_id = m.id_model
+    JOIN 
+        brand br ON b.brand_id = br.id_brand;
+
+    SELECT 
+        r.id_replacement AS ReplacementID,
+        r.name_replacement AS ReplacementName,
+        r.description AS Description,
+        r.price AS Price,
+        r.stock AS Stock
+    FROM 
+        replacement r;
+END $$
+
+DELIMITER ;
+```
 
 **Caso de Uso 6: Actualización Masiva de Precios** 
 

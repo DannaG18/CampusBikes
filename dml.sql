@@ -272,6 +272,195 @@ JOIN sale s ON s.client_id = cli.id_client
 WHERE s.date_sale BETWEEN '2024-07-01' AND '2024-08-01';
 
 --STORED PROCEDURES
+
+--USE CASE 1
+-- Describes how the system updates the bicycle inventory when a sale is made.
+  
+DELIMITER $$
+
+CREATE PROCEDURE IF NOT EXISTS UpdateBikesStock (
+    IN p_id_bike VARCHAR(10),
+    IN p_new_stock INT,
+    OUT p_updated_stock INT
+)
+BEGIN 
+  
+    UPDATE bike
+    SET stock = p_new_stock
+    WHERE id_bike = p_id_bike;
+
+
+    SELECT stock INTO p_updated_stock
+    FROM bike
+    WHERE id_bike = p_id_bike;
+END $$
+
+DELIMITER ;
+
+CALL UpdateBikesStock ('B001', 100, @updated_stock);
+SELECT @updated_stock AS updated_stock;
+
+--USE CASE 2
+-- Describes how the system records a new sale, including creating the sale and entering the sale details.
+
+DELIMITER $$
+
+CREATE PROCEDURE SaleRegister (
+    IN p_date_sale DATE,
+    IN p_client_id VARCHAR(20),
+    IN p_total_amount DECIMAL(10,2),
+    IN p_id_sale_detail VARCHAR(10),
+    IN p_bike1_id VARCHAR(10),
+    IN p_bike1_number INT,
+    IN p_bike1_price DECIMAL(10,2)
+)
+BEGIN
+    DECLARE v_sale_id INT;
+
+    INSERT INTO sale (date_sale, client_id, total_amount)
+    VALUES (p_date_sale, p_client_id, p_total_amount);
+
+    SET v_sale_id = LAST_INSERT_ID();
+
+    INSERT INTO sale_detail (id_sale_detail, sale_id, bike_id, bikes_number, unit_price)
+    VALUES (p_id_sale_detail, v_sale_id, p_bike1_id, p_bike1_number, p_bike1_price);
+
+    SELECT 
+        s.id_sale, 
+        s.date_sale, 
+        s.client_id, 
+        s.total_amount,
+        sd.id_sale_detail,
+        sd.bike_id, 
+        sd.bikes_number, 
+        sd.unit_price
+    FROM 
+        sale s
+    JOIN 
+        sale_detail sd ON s.id_sale = sd.sale_id
+    WHERE 
+        s.id_sale = v_sale_id;
+END $$
+
+DELIMITER ;
+
+CALL SaleRegister(
+    '2024-07-26', 
+    'C002', 
+    1250.00, 
+    'SD005',
+    'B002', 
+    2, 
+    500.00
+);
+
+--USE CASE 3
+-- describes how the system generates a sales report for a specific customer, showing all sales made by the customer and the details of each sale.
+
+DELIMITER $$
+
+CREATE PROCEDURE SaleReport (
+    IN p_client_id VARCHAR(20) 
+)
+BEGIN 
+    SELECT 
+        s.id_sale, 
+        s.date_sale, 
+        s.client_id, 
+        s.total_amount,
+        sd.id_sale_detail,
+        sd.bike_id, 
+        sd.bikes_number, 
+        sd.unit_price
+    FROM sale AS s
+    JOIN sale_detail AS sd ON sd.sale_id = s.id_sale
+    WHERE s.client_id = p_client_id;
+END $$
+
+DELIMITER ;
+
+CALL SaleReport (
+    'C002'
+);
+
+--USE CASE 4
+-- Describes how the system records a new purchase of spare parts from a supplier.
+
+DELIMITER $$
+
+CREATE PROCEDURE PurchaseRegister (
+    IN p_date_purchase DATE,
+    IN p_supplier_id VARCHAR(20),
+    IN p_total_amount DECIMAL(10,2),
+    IN p_id_purchase_detail VARCHAR(10),
+    IN p_replacement_id VARCHAR(5),
+    IN p_purchase_number INT(10),
+    IN p_unit_price DECIMAL(10,2)
+)
+BEGIN
+    DECLARE p_purchase_id INT;
+
+    INSERT INTO purchase (date_purchase, supplier_id, total_amount)
+    VALUES (p_date_purchase, p_supplier_id, p_total_amount);
+
+    SET p_purchase_id = LAST_INSERT_ID();
+
+    INSERT INTO purchase_detail (id_purchase_detail, purchase_id, replacement_id, purchase_number, unit_price)
+    VALUES (p_id_purchase_detail, p_purchase_id, p_replacement_id, p_purchase_number, p_unit_price);
+
+    UPDATE replacement 
+    SET stock = stock + p_purchase_number
+    WHERE id_replacement = p_replacement_id;
+
+END $$
+
+DELIMITER ;
+
+CALL PurchaseRegister(
+    '2024-07-26', 
+    'S001', 
+    5000.00, 
+    'PD004', 
+    'R001', 
+    10, 
+    100.00
+);
+
+--USE CASE 5
+-- Describes how the system generates a bicycle and spare parts inventory report.
+
+DELIMITER $$
+
+CREATE PROCEDURE GenerateInventoryReport()
+BEGIN
+
+    SELECT 
+        b.id_bike AS BikeID,
+        b.model_id AS ModelID,
+        m.name_model AS ModelName,
+        b.brand_id AS BrandID,
+        br.name_brand AS BrandName,
+        b.price AS Price,
+        b.stock AS Stock
+    FROM 
+        bike b
+    JOIN 
+        model m ON b.model_id = m.id_model
+    JOIN 
+        brand br ON b.brand_id = br.id_brand;
+
+    SELECT 
+        r.id_replacement AS ReplacementID,
+        r.name_replacement AS ReplacementName,
+        r.description AS Description,
+        r.price AS Price,
+        r.stock AS Stock
+    FROM 
+        replacement r;
+END $$
+
+DELIMITER ;
+
 --USE CASE 6
 --Shows how the system allows for mass updating of prices for all bikes of a specific brand.
 DROP PROCEDURE IF EXISTS update_bike_prices();
