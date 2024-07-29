@@ -3,7 +3,7 @@
 - [Casos de Uso para la Base de Datos.](#casos-de-uso-para-la-base-de-datos)
 - [Casos de Uso con Subconsultas.](#casos-de-uso-con-subconsultas)
 - [Casos de Uso con Joins.](#casos-de-uso-con-joins)
-- [Casos de Uso para Implementar Procedimientos Almacenados.](#casos-de-uso para-implementar-procedimientos-almacenados)
+- [Casos de Uso para Implementar Procedimientos Almacenados.](#casos-de-uso-para-implementar-procedimientos-almacenados)
 - [Casos de Uso para Funciones de Resumen.](#casos-de-uso-para-funciones-de-resumen)
 
 ![modeloERD](https://raw.githubusercontent.com/DannaG18/CampusBikes/main/modeloERD.png)
